@@ -1,1 +1,9 @@
-Where a basic utterance schema will go.
+HelpIntent Help
+HelpIntent help
+YesIntent yes
+YesIntent sure
+YesIntent ok
+YesIntent okay
+YesIntent Alright
+NoIntent no
+NoIntent nope

@@ -10,7 +10,10 @@ app = Flask(__name__)
 ask = Ask(app, "/")
 
 #List that we'll use to store out facts.
-facts = ["a","b","c","d"]
+facts = ["The NHS Programming Club is run by Davis Keene, Shaashwat Sharma and Roger Ramesh",
+         "This club is for people who want to learn how to program with the help of experienced mentors",
+         "This club teaches programming with Python, but the concepts can be applied to any language",
+         "NHS Programming Club is the second best club in the school. The first being robotics!"]
 
 #Basic skill instances. First, we declare a startup message.
 @ask.launch

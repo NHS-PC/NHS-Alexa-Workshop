@@ -1,1 +1,13 @@
-Where an example intent schema will go.
+{
+  "intents": [
+    {
+      "intent": "HelpIntent"
+    },
+    {
+      "intent": "YesIntent"
+    },
+    {
+      "intent": "NoIntent"
+    },
+  ]
+}

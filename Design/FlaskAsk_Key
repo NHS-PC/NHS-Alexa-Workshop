@@ -1,1 +1,18 @@
 Flask-Ask syntax
+
+app = Flask(__name__)  Calling the "Flask" and "Ask" components from the import statements
+ask = Ask(app, "/")
+
+@ask.launch            The first thing that is called from the flask app. The "Welcome" message.
+
+@ask.intent("Name")    Declares a new intent.
+
+
+if __name__ == '__main__':     Flask syntax, states that if the name set is equal to the name of
+    app.run(debug=True)        the main function, run the app with debugging on.
+
+
+def functionName()     Function that runs when an intent is called
+
+
+

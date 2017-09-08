@@ -1,1 +1,11 @@
-How to deploy your project.
+How to deploy your project:
+
+We use zappa to and Amazon Working Services to deploy apps.
+
+First, we need to install our dependencies:
+
+pip install zappa
+pip install awscli
+
+Next, we need to open our developer accounts and allow Zappa to deploy our skill to amazon.
+

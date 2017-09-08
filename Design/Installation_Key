@@ -1,0 +1,6 @@
+Installing Python:
+http://timmyreilly.azurewebsites.net/python-pip-virtualenv-installation-on-windows/
+
+Installing libraries:
+pip install flask
+pip install flask-ask
