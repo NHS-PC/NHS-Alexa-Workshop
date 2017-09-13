@@ -2,15 +2,28 @@
 import urllib
 from bs4 import BeautifulSoup
 
-#Simple script to get the name and price of a new laptop.
-def getPrice():
-    # Use URLLIB to open a webpage
-    site = urllib.urlopen("http://www.dell.com/en-us/shop/dell-laptops/sc/laptops/inspiron-laptops")
-    # BeautifulSoup object of the HTML code
-    soup = BeautifulSoup(site, 'html.parser')
-    # From the html, find an h4 attribute that has the type data-testid and the name productSeriesVariantStartingAtId
-    price = soup.find("h4", attrs={"data-testid":"productSeriesVariantStartingAtId"})
-    # Print the price as text, but without the html tags around it. .strip() removes the tags.
-    print price.text.strip()
 
-getPrice()
+def getPrediction(player1,player2):
+    try:
+        # Use URLLIB to open a webpage
+        p1 = player1.replace(" ","-").lower()
+        p2 = player2.replace(" ","-").lower()
+        site = urllib.urlopen("https://www.fantasypros.com/nfl/start/"+p1+"-"+p2+".php")
+        # BeautifulSoup object of the HTML code
+        soup = BeautifulSoup(site, 'html.parser')
+        # From the html, find an h4 attribute that has the type span and the name more
+        p1_percent = soup.find("span", attrs={"class":"more"})
+        p1_name = str(soup.find("div", attrs={"class":"three columns"}))
+        index = p1_name.find("value")
+        p1_name = p1_name[index+6:]
+        p1_name = p1_name.split(">")
+
+        # Print the price as text, but without the html tags around it. .strip() removes the tags.
+        p1_percent = p1_percent.text.strip()
+        p1_name = p1_name[0]
+        print p1_name,"is a better start, according to",p1_percent,"of fantasy experts."
+
+    except:
+        print "Sorry, a player's name must have been typed improperly. Please try again."
+getPrediction("Kelvin Benjamin","Larry Fitzgerald")
+
