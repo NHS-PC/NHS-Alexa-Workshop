@@ -7,6 +7,22 @@ page = urllib.urlopen(request)
 
 result = json.loads(page.read())
 
+csvdata = pd.read_csv(r'zipcodes.csv', skipinitialspace=True, delimiter=",")
+number= []
+zip = csvdata["ZIP"]
+lat = csvdata["LAT"]
+long = csvdata["LNG"]
+for x in zip:
+    if str(x).__len__() == 3:
+        a = "00"+str(x)
+        number.append(a)
+    if str(x).__len__() == 4:
+        a = "0"+str(x)
+        number.append(a)
+    elif str(x).__len__() == 5:
+        a = str(x)
+        number.append(a)
+
 def getTime():
     return result['currently']['time']
 
@@ -29,22 +45,18 @@ def getType():
     except:
         return "No precipt"
 
+def getAccumulation():
+    try:
+        return (result['hourly']['precipAccumulation'])
+    except:
+        return 0
+
+def getSummary():
+    return (result['daily']['summary'])
 
 def getLat(zipcode):
-    csvdata = pd.read_csv(r'zipcodes.csv', skipinitialspace=True, delimiter=",")
-    zip = csvdata["ZIP"]
-    number= []
-    for x in zip:
-        if str(x).__len__() == 4:
-            a = "0"+str(x)
-            number.append(a)
-        elif str(x).__len__() == 5:
-            a = str(x)
-            number.append(a)
-    print(number)
-    for row in number:
-        if zipcode == row:
-            return row
-        else:
-            return "Not a valid zip!"
-print getLat("02494")
+    return str(lat[number.index(zipcode)])
+
+def getLong(zipcode):
+
+    return str(long[number.index(zipcode)])
