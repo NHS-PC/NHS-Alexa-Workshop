@@ -1,14 +1,17 @@
-import processor
+from processor import getSummary, getLong, getLat, getType, getSpeed, getTemp, getPrecipChance, getTime, getAccumulation
 import json
 import numpy
 import pandas
 import sklearn
 
 def weighTime():
-    return 1==1
+    if(getTime()>20 or getTime()<5):
+        return 1
+    else:
+        return 0
 
 def weighPrecipChance():
-    return True
+    return getPrecipChance()*100
 
 def weighTemp():
     return True

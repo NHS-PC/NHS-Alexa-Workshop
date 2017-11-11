@@ -30,26 +30,34 @@ def getTime():
 def getPrecipChance():
     return result['currently']['precipProbability']
 
-
+# Average Temp over 12 hours
 def getTemp():
-    return result['currently']['temperature']
-
+    temp = 0
+    total = 0
+    for i in range(0,12):
+        temp+=int(result['hourly']['data'][i]['temperature'])
+        total+=1
+    return temp/total
 
 def getSpeed():
     return (result['currently']['windSpeed'] + result['currently']['windGust']) / 2
 
 
 def getType():
-    try:
-        return result['hourly']['precipType']
-    except:
-        return "No precipt"
+    for i in range(1,12):
+        try:
+            return result['hourly']['data'][i]['precipType'] + " in {} hours".format(i)
+        except:
+            pass
+    return "No precip"
+
 
 def getAccumulation():
-    try:
-        return (result['hourly']['precipAccumulation'])
-    except:
-        return 0
+    for i in range(0,12):
+        try:
+            return result['daily']['data'][i]['precipAccumulation'], " in {} hours".format(i)
+        except:
+            pass
 
 def getSummary():
     return (result['daily']['summary'])
@@ -60,3 +68,8 @@ def getLat(zipcode):
 def getLong(zipcode):
 
     return str(long[number.index(zipcode)])
+
+dataThing = result['hourly']['data'][1]['temperature']
+
+print getType()
+print getAccumulation()
