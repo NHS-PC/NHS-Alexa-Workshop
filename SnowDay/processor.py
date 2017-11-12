@@ -102,6 +102,7 @@ def getAccumulation():
 def getSummary():
     return (result['daily']['summary'])
 
+# Activation function, how to weigh accumulation in the main percent chance equation
 def accfn(n):
     percent = getAccumulation()
     if percent<=1:
