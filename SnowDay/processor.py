@@ -160,4 +160,4 @@ def predict(predictionn):
     print clf.predict_proba(X_Train)
 
 
-predict([[1,10,60,1,0,0]])
+predict([features])
