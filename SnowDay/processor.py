@@ -1,11 +1,12 @@
 import json
 import urllib
 import pandas as pd
-import numpy
+import numpy as np
 import time
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
 from os import system
+from sklearn import svm
 import os
 import sys
 
@@ -26,6 +27,11 @@ for x in zip:
     elif str(x).__len__() == 5:
         a = str(x)
         number.append(a)
+
+# Load weather data
+
+
+
 # Prompt the user to enter their ZIP
 coordinates = raw_input("What is your ZIP Code?")
 
@@ -123,29 +129,38 @@ def getSummary():
 
 features = [getType(),getAccumulation(),getPrecipChance(), getTemp(), getSpeed(), latCar()]
 
-weights = numpy.asarray([1,1,1,1,1,1])
+weights = np.asarray([1,1,1,1,1,1])
 weights.shape = (features.__len__(),1)
 
 #Dot multiplication for features. If the precipitation type is not snow, then decrease the likelihood of a snow day
 new_nums = features*weights.transpose()*(getType())
 
-print features, "Features"
-time.sleep(1)
-print weights, "Weights"
-time.sleep(1)
-print new_nums, "Multiplied"
+# Prediction index
+prediction = np.zeros((1, 6))
 
-def predict(predictionn):
+with open("current.day") as data_file:
+    data = json.load(data_file)
+
+    prediction[0, 0] = data['daily']['data'][1]['temperatureMin']
+    prediction[0, 1] = getPrecipChance()
+    prediction[0, 2] = data['daily']['data'][1]['precipIntensity']
+    if 'precipAccumulation' in data ['daily']['data'][1]:
+        prediction[0, 3] = getAccumulation()
+    else:
+        prediction[0, 3] = 0
+    prediction[0, 4] = getType()
+    prediction[0, 5] = getTemp()
+
+def predict(n):
     X_Train = [[1,20,80,1,15,1],[1,15,60,1,15,0],[0,0.16,25,0,10,1],[1,0.015,0.02,0,0,2],[0,0.013,0.1,0,0,1],[1,1,10,30,15,2],
                [1,12,90,1,20,2],[1,8,85,1,15,1]]
     Y_Train = [[1],[1],[0],[0],[0],[0],[1],[1]]
 
-    clf = tree.DecisionTreeClassifier()
-
+    clf = svm.SVC(probability=True, kernel='linear', tol=0.001, C=0.95, class_weight='balanced')
     # fitting the data to the tree
     clf.fit(X_Train, Y_Train)
     # predicting the gender based on a prediction
-    prediction = clf.predict(predictionn)
+    prediction = clf.predict(n)
 
     # Visualize tree
     dotfile = open("dtree.dot", 'w')
@@ -155,9 +170,9 @@ def predict(predictionn):
     system("xdg-open dtree.pdf")
 
     # print the predicted gender
-    print predictionn
+    print n
     print(prediction)
-    print clf.predict_proba(X_Train)
+    print clf.predict_proba([[1,20,80,1,15,1]])
 
 
 predict([features])
