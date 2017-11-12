@@ -3,6 +3,12 @@ import urllib
 import pandas as pd
 import numpy
 import time
+from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
+from os import system
+import os
+import sys
+
 
 # Load CSV data of all zipcodes
 csvdata = pd.read_csv(r'zipcodes.csv', skipinitialspace=True, delimiter=",")
@@ -42,9 +48,11 @@ result = json.loads(page.read())
 
 # Get section of America, southern states are more prone to snow days!
 def latCar():
-    if int(getLat(coordinates))<35:
+    latitude = round(float(getLat(coordinates)))
+
+    if latitude<35:
         return 2
-    elif int(getLat(coordinates))>=35 and int(getLat(coordinates))<=40:
+    elif latitude>=35 and latitude<=40:
         return 1
     else:
         return 0
@@ -55,9 +63,15 @@ def getTime():
 
 # Get the chance of precipitation
 def getPrecipChance():
-    return result['currently']['precipProbability']
+    count = 0
+    total = 0
+    for i in range(0,12):
+        n = result['hourly']['data'][i]['precipProbability']
+        total+=n
+        count+=1
+    return round(total/count,2)
 
-# Average Temp over 12 hours
+# Average Temp over 12 hours, return 1 if temp average temp is under 32 degrees
 def getTemp():
     temp = 0
     total = 0
@@ -87,7 +101,7 @@ def getType():
                 pass
         except:
             pass
-    return 0.25
+    return 0
 
 # Get the estimated accumulation of snow (BIGGEST FACTOR)
 def getAccumulation():
@@ -102,29 +116,18 @@ def getAccumulation():
 def getSummary():
     return (result['daily']['summary'])
 
-# Activation function, how to weigh accumulation in the main percent chance equation
-def accfn(n):
-    percent = getAccumulation()
-    if percent<=1:
-        return 0
-    elif percent>1 and percent<=12:
-        return 3.5*percent
-    elif percent>12 and percent<=94:
-        return .27*((n+17)**1.5)
-    else:
-        return (100*(n**1.5))/((n+2)*(n**1.5))
-
 # Make a prediction based on the given data. Weigh each feature by a certain amount.
 
 # DATA: ACCUMULATION, CHANCE, TEMP, SPEED, TIME (organized in order of importance)
+# Features are all scaled to a range of 0-100, then they have weights applied to them in order of importance
 
-features = [getType(),getAccumulation(),getPrecipChance(), getTemp(), getSpeed(), getTime()]
+features = [getType(),getAccumulation(),getPrecipChance(), getTemp(), getSpeed(), latCar()]
 
 weights = numpy.asarray([1,1,1,1,1,1])
 weights.shape = (features.__len__(),1)
 
 #Dot multiplication for features. If the precipitation type is not snow, then decrease the likelihood of a snow day
-new_nums = features*weights.transpose().dot(getType())
+new_nums = features*weights.transpose()*(getType())
 
 print features, "Features"
 time.sleep(1)
@@ -132,5 +135,29 @@ print weights, "Weights"
 time.sleep(1)
 print new_nums, "Multiplied"
 
-print accfn(95)
+def predict(predictionn):
+    X_Train = [[1,20,80,1,15,1],[1,15,60,1,15,0],[0,0.16,25,0,10,1],[1,0.015,0.02,0,0,2],[0,0.013,0.1,0,0,1],[1,1,10,30,15,2],
+               [1,12,90,1,20,2],[1,8,85,1,15,1]]
+    Y_Train = [[1],[1],[0],[0],[0],[0],[1],[1]]
 
+    clf = tree.DecisionTreeClassifier()
+
+    # fitting the data to the tree
+    clf.fit(X_Train, Y_Train)
+    # predicting the gender based on a prediction
+    prediction = clf.predict(predictionn)
+
+    # Visualize tree
+    dotfile = open("dtree.dot", 'w')
+    tree.export_graphviz(clf, out_file=dotfile)
+    dotfile.close()
+    system("dot -Tpdf dtree.dot -o dtree.pdf")
+    system("xdg-open dtree.pdf")
+
+    # print the predicted gender
+    print predictionn
+    print(prediction)
+    print clf.predict_proba(X_Train)
+
+
+predict([[1,10,60,1,0,0]])
