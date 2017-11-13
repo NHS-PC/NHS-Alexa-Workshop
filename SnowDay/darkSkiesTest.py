@@ -13,6 +13,8 @@ page = urllib.urlopen(request)
 
 result = json.loads(page.read())
 
-print result
+print result['currently']['nearestStormDistance']
+
+processor.predict()
 
 
