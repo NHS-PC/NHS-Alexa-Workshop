@@ -57,9 +57,10 @@ for row in X:
 
 y = np.array(Y_Data)
 
-clf = svm.SVC(probability=True, kernel='linear', tol=0.001, C=0.95, class_weight='balanced')\
+clf = svm.SVC(probability=True, kernel='linear', tol=0.001, C=0.95, class_weight='balanced')
 
 clf.fit(X, y)
+
 
 # Prompt the user to enter their ZIP
 
@@ -156,11 +157,11 @@ def predict(zip):
 
     array = [arr]
 
-    prediction = clf.predict(array)
-    resultArr = clf.predict_proba(array)
-    final = str(resultArr.item((0, 1)) * 100)
+    prediction1 = clf.predict(array)
+    resultArr1 = clf.predict_proba(array)
+    final1 = str(resultArr1.item((0, 1)) * 100)
 
     # print the predicted gender
-    print final
+    print final1
 
 predict("02494")
