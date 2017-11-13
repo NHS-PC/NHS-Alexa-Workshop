@@ -3,6 +3,7 @@ import urllib
 import pandas as pd
 import numpy as np
 from sklearn import svm
+import base64
 
 # Load CSV data of all zipcodes
 csvdata = pd.read_csv(r'zipcodes.csv', skipinitialspace=True, delimiter=",")
@@ -68,8 +69,7 @@ def predict(zip):
         return str(long[number.index(zipcode)])
 
     # URL
-    url = "https://api.darksky.net/forecast/7087ce0f218cc2c9ec3244a25f8f2f59/"+str(lat[number.index(coordinates)])+","+str(long[number.index(coordinates)])
-    print url
+    url = "https://api.darksky.net/forecast/"+base64.b32decode("G4YDQN3DMUYGMMRRHBRWGMTDHFSWGMZSGQ2GCMRVMY4GMMTGGU4Q====")+"/"+str(lat[number.index(coordinates)])+","+str(long[number.index(coordinates)])
 
     # API Request
     page = urllib.urlopen(url)
@@ -154,7 +154,7 @@ def predict(zip):
     resultArr1 = clf.predict_proba(array)
     final1 = str(resultArr1.item((0, 1)) * 100)
 
-    # Override the print function IF something occurs
+#    # Override the print function IF something occurs
 #    if temp >=32:
 #        return "There is a zero percent chance of a snow day, because it is {} degrees outside.".format(temp)
 
