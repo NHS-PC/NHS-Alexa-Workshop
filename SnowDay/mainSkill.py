@@ -13,7 +13,7 @@ def greeting():
 @ask.intent("PredictIntent")
 def predict(prediction):
     snow_day = processor.predict(str(prediction))
-    msg = "There is a {} percent chance of a snow day in your town. Would you like to ask again?".format(snow_day)
+    msg = "{}. Would you like to ask again?".format(snow_day)
     return question(msg)
 
 @ask.intent("HelpIntent")

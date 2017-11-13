@@ -2,14 +2,7 @@ import json
 import urllib
 import pandas as pd
 import numpy as np
-import time
-from sklearn import tree
-from sklearn.ensemble import RandomForestClassifier
-from os import system
 from sklearn import svm
-import os
-import sys
-
 
 # Load CSV data of all zipcodes
 csvdata = pd.read_csv(r'zipcodes.csv', skipinitialspace=True, delimiter=",")
@@ -28,12 +21,12 @@ for x in zip:
         a = str(x)
         number.append(a)
 
-# Load weather data
+# Train the classifier
 
 X_Data = ([[1,20,80,1,15,1],[1,15,60,1,15,0],[0,0.16,25,0,10,1],[1,0.015,0.02,0,0,2],[0,0.013,0.1,0,0,1],[1,1,10,30,15,2],
-               [1,12,90,1,20,2],[1,8,85,1,15,1]])
+               [1,12,90,1,20,2],[1,8,85,1,15,1],[0,.012,0,1,5,2]])
 
-Y_Data = ([[1],[1],[0],[0],[0],[0],[1],[1]])
+Y_Data = ([[1],[1],[0],[0],[0],[0],[1],[1],[0]])
 
 lines = 0
 
@@ -141,7 +134,7 @@ def predict(zip):
             pass
 
     # Get a weather summary from Dark Sky
-    summary = (result['daily']['summary'])
+    summary = (result['hourly']['summary'])
 
     a = coordinates
 
@@ -161,7 +154,19 @@ def predict(zip):
     resultArr1 = clf.predict_proba(array)
     final1 = str(resultArr1.item((0, 1)) * 100)
 
-    # print the predicted gender
-    print final1
+    # Override the print function IF something occurs
+#    if temp >=32:
+#        return "There is a zero percent chance of a snow day, because it is {} degrees outside.".format(temp)
 
-predict("02494")
+#    if type != 1:
+#        return "There is a zero percent chance of a snow day, because it will {} instead.".format(pretype)
+
+#    if accumulation <= 2:
+#        return "There is a zero percent chance of a snow day, because it only snow {} inches".format(accumulation)
+
+    message = summary.encode('utf-8')
+
+    return "There is a {} percent chance of a snow day. ".format(final1) + message
+
+inp = raw_input("What is your zip code?")
+print predict(inp)
