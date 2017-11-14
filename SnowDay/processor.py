@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from sklearn import svm
 import base64
+from config import API_KEY
 
 # Load CSV data of all zipcodes
 csvdata = pd.read_csv(r'zipcodes.csv', skipinitialspace=True, delimiter=",")
@@ -69,8 +70,9 @@ def predict(zip):
         return str(long[number.index(zipcode)])
 
     # URL
-    url = "https://api.darksky.net/forecast/"+base64.b32decode("G4YDQN3DMUYGMMRRHBRWGMTDHFSWGMZSGQ2GCMRVMY4GMMTGGU4Q====")+"/"+str(lat[number.index(coordinates)])+","+str(long[number.index(coordinates)])
+    url = "https://api.darksky.net/forecast/"+API_KEY+"/"+str(lat[number.index(coordinates)])+","+str(long[number.index(coordinates)])
 
+    print url
     # API Request
     page = urllib.urlopen(url)
 
@@ -134,7 +136,7 @@ def predict(zip):
             pass
 
     # Get a weather summary from Dark Sky
-    summary = (result['hourly']['summary'])
+    summary = (result['currently']['summary'])
 
     a = coordinates
 
@@ -150,7 +152,7 @@ def predict(zip):
 
     array = [arr]
 
-    prediction1 = clf.predict(array)
+#   prediction1 = clf.predict(array)
     resultArr1 = clf.predict_proba(array)
     final1 = str(resultArr1.item((0, 1)) * 100)
 
