@@ -95,7 +95,7 @@ def predict(zip):
     # Get the current time
     time = result['currently']['time']
 
-    # Get the chance of precipitation
+    # Get the chance of precipitation NEED TO CHANGE THIS
     total = 0
     count = 0
     for i in range(0,12):
@@ -138,6 +138,9 @@ def predict(zip):
 
     # Get a weather summary from Dark Sky
     summary = (result['currently']['summary'])
+
+#    storm_distance = result['currently']['nearestStormDistance']
+#    print storm_distance
 
     a = coordinates
 
