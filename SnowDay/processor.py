@@ -26,10 +26,10 @@ for x in zip:
 
 # Train the classifier
 
-X_Data = ([[1,20,80,1,15,1],[1,15,60,1,15,0],[0,0.16,25,0,10,1],[1,0.015,0.02,0,0,2],[0,0.013,0.1,0,0,1],[1,1,10,30,15,2],
-               [1,12,90,1,20,2],[1,8,85,1,15,1],[0,.012,0,1,5,2]])
+X_Data = ([[1,15,.80,1,15,1],[1,12,.60,1,15,0],[0,0.16,.25,0,10,1],[1,0.015,0.02,0,0,2],[0,0.013,0.1,0,0,1],[1,1,.10,30,15,2],
+               [1,12,.90,1,20,2],[1,8,.85,1,15,1],[0,.012,0,1,5,2],[1,9.222,0.09,1,19,0],[1,2.45,0.27,1,19,0],[1,2.45,0.67,1,19,2]])
 
-Y_Data = ([[1],[1],[0],[0],[0],[0],[1],[1],[0]])
+Y_Data = ([[1],[1],[0],[0],[0],[0],[1],[1],[0],[1],[0],[1]])
 
 lines = 0
 
@@ -108,9 +108,9 @@ def predict(zip):
     temperature = result['daily']['data'][0]['temperatureMin']
     temp = 0
     if(temperature>=32):
-        temp = 1
-    elif temperature<32:
         temp = 0
+    elif temperature<32:
+        temp = 1
 
     # Get current wind speed, return 0 if not blizzard and 1 if blizzard
     speed = (result['currently']['windSpeed'] + result['currently']['windGust']) / 2
@@ -119,7 +119,7 @@ def predict(zip):
     type = 0
     for i in range(1,12):
         try:
-            pretype = result['hourly']['data'][i]['precipType']
+            pretype = result['hourly']['data'][2]['precipType']
             if(pretype == "snow"):
                 type = 1
             else:
@@ -130,19 +130,16 @@ def predict(zip):
 
     # Get the estimated accumulation of snow (BIGGEST FACTOR)
     accumulation = 0
-    for i in range(0,12):
-        try:
-            accumulation = result['daily']['data'][i]['precipAccumulation']
-        except:
-            pass
+    try:
+        accumulation = result['daily']['data'][0]['precipAccumulation']
+    except:
+        pass
 
     # Get a weather summary from Dark Sky
     summary = (result['currently']['summary'])
 
-#    storm_distance = result['currently']['nearestStormDistance']
-#    print storm_distance
-
-    a = coordinates
+    storm_distance = result['currently']['nearestStormDistance']
+    print storm_distance
 
     # Make a prediction based on the given data. Weigh each feature by a certain amount.
 
@@ -160,19 +157,20 @@ def predict(zip):
     resultArr1 = clf.predict_proba(array)
     final1 = str(resultArr1.item((0, 1)) * 100)
 
+    print array
+
 #    # Override the print function IF something occurs
-#    if temp >=32:
-#        return "There is a zero percent chance of a snow day, because it is {} degrees outside.".format(temp)
+    if temp == 0:
+        return "There is a zero percent chance of a snow day, because it is {} degrees outside.".format(temperature)
 
-#    if type != 1:
-#        return "There is a zero percent chance of a snow day, because it will {} instead.".format(pretype)
+    if type != 1:
+        return "There is a zero percent chance of a snow day, because it will {} instead.".format(pretype)
 
-#    if accumulation <= 2:
-#        return "There is a zero percent chance of a snow day, because it only snow {} inches".format(accumulation)
+    if accumulation <= 2:
+        return "There is a zero percent chance of a snow day, because it will only snow {} inches".format(accumulation)
 
     message = summary.encode('utf-8')
 
     return "There is a {} percent chance of a snow day. ".format(final1) + message
 
-inp = raw_input("What is your zip code?")
-print predict(inp)
+print predict("99723")
