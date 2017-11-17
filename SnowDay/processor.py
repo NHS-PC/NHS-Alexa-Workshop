@@ -6,6 +6,7 @@ import pandas as pd
 from sklearn import svm
 
 from config import API_KEY
+# from data.timemachine import X_Data, Y_Data
 
 # Load CSV data of all zipcodes
 csvdata = pd.read_csv(r'zipcodes.csv', skipinitialspace=True, delimiter=",")
@@ -26,8 +27,10 @@ for x in zip:
 
 # Train the classifier
 
-X_Data = ([[1,15,.80,1,15,1],[1,12,.60,1,15,0],[0,0.16,.25,0,10,1],[1,0.015,0.02,0,0,2],[0,0.013,0.1,0,0,1],[1,1,.10,30,15,2],
-               [1,12,.90,1,20,2],[1,8,.85,1,15,1],[0,.012,0,1,5,2],[1,9.222,0.09,1,19,0],[1,2.45,0.27,1,19,0],[1,2.45,0.67,1,19,2]])
+X_Data = ([[1,15,.80,1,15,1],[1,12,.60,1,15,0],[0,0.16,.25,0,10,1],[1,0.015,0.02,0,0,2],
+           [0,0.013,0.1,0,0,1],[1,1,.10,30,15,2],[1,12,.90,1,20,2],[1,8,.85,1,15,1],
+           [0,.012,0,1,5,2],[1,9.222,0.09,1,19,0],[1,2.45,0.27,1,19,0],[1,2.45,0.67,1,19,2],
+           ])
 
 Y_Data = ([[1],[1],[0],[0],[0],[0],[1],[1],[0],[1],[0],[1]])
 
@@ -173,4 +176,7 @@ def predict(zip):
 
     return "There is a {} percent chance of a snow day. ".format(final1) + message
 
-print predict("99723")
+def timePredict(data):
+    answer = clf.predict_proba(data)
+    final1 = str(answer.item((0, 1))*100)
+    return final1
