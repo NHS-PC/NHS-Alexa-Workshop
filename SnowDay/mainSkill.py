@@ -30,3 +30,6 @@ def yes():
 @ask.intent("NoIntent")
 def no():
     return statement("Goodbye!")
+
+if __name__ == "__main__":
+    app.run(debug=True)

@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn import svm
 
 from config import API_KEY
-# from data.timemachine import X_Data, Y_Data
+from data.weatherData import X_Data, Y_Data
 
 # Load CSV data of all zipcodes
 csvdata = pd.read_csv(r'zipcodes.csv', skipinitialspace=True, delimiter=",")
@@ -27,19 +27,12 @@ for x in zip:
 
 # Train the classifier
 
-X_Data = ([[1,15,.80,1,15,1],[1,12,.60,1,15,0],[0,0.16,.25,0,10,1],[1,0.015,0.02,0,0,2],
-           [0,0.013,0.1,0,0,1],[1,1,.10,30,15,2],[1,12,.90,1,20,2],[1,8,.85,1,15,1],
-           [0,.012,0,1,5,2],[1,9.222,0.09,1,19,0],[1,2.45,0.27,1,19,0],[1,2.45,0.67,1,19,2],
-           ])
-
-Y_Data = ([[1],[1],[0],[0],[0],[0],[1],[1],[0],[1],[0],[1]])
-
 lines = 0
 
 for i in X_Data:
     lines = lines+1
 
-X = np.zeros((lines,6))
+X = np.zeros((lines,7))
 
 line = 0
 col = 0
@@ -120,9 +113,9 @@ def predict(zip):
 
     # Get the type of precipitation (if snow, return 1. if not, return 0.25. This is the attenuation factor.)
     type = 0
-    for i in range(1,12):
+    for i in range(1,6):
         try:
-            pretype = result['hourly']['data'][2]['precipType']
+            pretype = result['hourly']['data'][i]['precipType']
             if(pretype == "snow"):
                 type = 1
             else:
@@ -146,10 +139,9 @@ def predict(zip):
 
     # Make a prediction based on the given data. Weigh each feature by a certain amount.
 
-    # DATA: ACCUMULATION, CHANCE, TEMP, SPEED, TIME (organized in order of importance)
-    # Features are all scaled to a range of 0-100, then they have weights applied to them in order of importance
+    # DATA: TYPE, ACCUMULATION, CHANCE, TEMP, SPEED, CATEGORY, STORM_DISTANCE (organized in order of importance)
 
-    features = [type,accumulation,prob,temp, round(speed,0), cat]
+    features = [type,accumulation,prob,temp, round(speed,0), cat, storm_distance]
 
     # Prediction index
     arr = np.asarray(features).ravel()
@@ -157,8 +149,8 @@ def predict(zip):
     array = [arr]
 
 #   prediction1 = clf.predict(array)
-    resultArr1 = clf.predict_proba(array)
-    final1 = str(resultArr1.item((0, 1)) * 100)
+    ans = clf.predict_proba(array)
+    finalPrediction = str(ans.item((0, 1)) * 100)
 
     print array
 
@@ -167,16 +159,18 @@ def predict(zip):
         return "There is a zero percent chance of a snow day, because it is {} degrees outside.".format(temperature)
 
     if type != 1:
-        return "There is a zero percent chance of a snow day, because it will {} instead.".format(pretype)
+        return "There is a zero percent chance of a snow day, because it will {} instead.".format(result['hourly']['data'][2]['precipType'])
 
     if accumulation <= 2:
         return "There is a zero percent chance of a snow day, because it will only snow {} inches".format(accumulation)
 
     message = summary.encode('utf-8')
 
-    return "There is a {} percent chance of a snow day. ".format(final1) + message
+    return "There is a {} percent chance of a snow day. ".format(finalPrediction) + message
 
 def timePredict(data):
     answer = clf.predict_proba(data)
     final1 = str(answer.item((0, 1))*100)
     return final1
+
+print predict("02494")
