@@ -173,4 +173,4 @@ def timePredict(data):
     final1 = str(answer.item((0, 1))*100)
     return final1
 
-print predict("02494")
+print predict("99723")

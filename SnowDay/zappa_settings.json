@@ -1,0 +1,10 @@
+{
+    "dev": {
+        "app_function": "mainSkill.app", 
+        "aws_region": "us-east-1", 
+        "profile_name": "default", 
+        "project_name": "snowday", 
+        "runtime": "python2.7", 
+        "s3_bucket": "zappa-4wcyhb15n"
+    }
+}
