@@ -5,6 +5,7 @@
         "profile_name": "default", 
         "project_name": "snowday", 
         "runtime": "python2.7", 
-        "s3_bucket": "zappa-4wcyhb15n"
+        "s3_bucket": "zappa-ruwfvleku",
+        "slim_handler": "true"
     }
 }

@@ -3,8 +3,6 @@ from flask_ask import Ask, statement, question
 import json
 import numpy as np
 import urllib
-
-import pandas as pd
 from sklearn import svm
 
 from config import API_KEY
@@ -138,7 +136,7 @@ def predict(prediction):
     accumulation = 0
     for i in range(0,6):
         try:
-            accumulation += result['daily']['data'][i]['precipAccumulation']
+            accumulation += result['hourly']['data'][i]['precipAccumulation']
         except:
             pass
 
@@ -154,7 +152,7 @@ def predict(prediction):
 
     # DATA: TYPE, ACCUMULATION, CHANCE, TEMP, SPEED, CATEGORY, STORM_DISTANCE (organized in order of importance)
 
-    features = [type,accumulation,prob,temp, round(speed,0), cat]
+    features = [type,accumulation,prob,temp, cat]
 
     # Prediction index
     arr = np.asarray(features).ravel()
@@ -167,6 +165,11 @@ def predict(prediction):
 
 #    # Override the print function IF something occurs
     try:
+        if temp == 0:
+            return question(
+                "There is a small chance of a snow day in {}, {}, because it isn't cold enough. Right now, it is about {} degrees outside, with a low of {} degrees for the day. Would you like to ask again?".format(
+                    city, state, tempc, temperature))
+
         if finalPrediction < 25:
             if type !=1:
                 return question("There is a small chance of a snow day in {}, {}, because it isn't supposed to snow today. The forecast calls for {}. Would you like to ask again?".format(city,state,summary))
@@ -182,7 +185,7 @@ def predict(prediction):
         if finalPrediction > 75:
             return question("There is a {} percent chance of a snow day in {}, {}. The forecast calls for {}, meaning there is a very good chance of a snow day. Would you like to ask again?".format(finalPrediction, city, state, summaryd) + message)
 
-        return question("There is a {} percent chance of a snow day in {}, {}. Would you like to ask again?".format(finalPrediction,city,state) + message)
+        return question("There is a {} percent chance of a snow day in {}, {}. Would you like to ask again?".format(finalPrediction,city,state))
     except:
         return question("Sorry, I couldn't find any weather data for this zip code. Would you like to try again?")
 @ask.intent("HelpIntent")

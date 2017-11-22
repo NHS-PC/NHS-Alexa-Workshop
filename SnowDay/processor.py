@@ -7,36 +7,6 @@ from sklearn import svm
 
 from config import API_KEY
 from data.weatherData import X_Data, Y_Data
-
-# Train the classifier
-
-lines = 0
-
-for i in X_Data:
-    lines = lines+1
-
-X = np.zeros((lines,7))
-
-line = 0
-col = 0
-for row in X:
-    X[line,0] = X_Data[line][0]
-    X[line,1] = X_Data[line][1]
-    X[line,2] = X_Data[line][2]
-    X[line, 3] = X_Data[line][3]
-    X[line, 4] = X_Data[line][4]
-    X[line, 5] = X_Data[line][5]
-    line = line+1
-
-# fitting the data to the tree
-
-y = np.array(Y_Data)
-
-clf = svm.SVC(probability=True, kernel='linear', tol=0.001, C=0.95, class_weight='balanced')
-
-clf.fit(X, y)
-
-
 # Prompt the user to enter their ZIP
 
 def predict(zip):
@@ -57,7 +27,7 @@ def predict(zip):
     for i in X_Data:
         lines = lines + 1
 
-    X = np.zeros((lines, 6))
+    X = np.zeros((lines, 5))
 
     line = 0
     for row in X:
@@ -66,7 +36,6 @@ def predict(zip):
         X[line, 2] = X_Data[line][2]
         X[line, 3] = X_Data[line][3]
         X[line, 4] = X_Data[line][4]
-        X[line, 5] = X_Data[line][5]
         line = line + 1
 
     # fitting the data to the tree
@@ -140,10 +109,6 @@ def predict(zip):
             pretype = result['hourly']['data'][i]['precipType']
             if (pretype == "snow"):
                 type = 1
-            elif pretype == "rain":
-                type = 2
-            elif type == "sleet":
-                type = 3
             else:
                 pass
         except:
@@ -165,7 +130,7 @@ def predict(zip):
 
     # DATA: TYPE, ACCUMULATION, CHANCE, TEMP, SPEED, CATEGORY, STORM_DISTANCE (organized in order of importance)
 
-    features = [type, accumulation, prob, temp, round(speed, 0), cat]
+    features = [type, accumulation, prob, temp, cat]
 
     # Prediction index
     arr = np.asarray(features).ravel()
@@ -199,9 +164,4 @@ def predict(zip):
 
     return "There is a {} percent chance of a snow day in {}, {}. Would you like to ask again?".format(finalPrediction, city,state) + message
 
-def timePredict(data):
-    answer = clf.predict_proba(data)
-    final1 = str(answer.item((0, 1))*100)
-    return final1
-
-print predict("02490")
+print predict("96703")
