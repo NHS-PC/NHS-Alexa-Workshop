@@ -87,6 +87,6 @@ def timePredict(data):
     print "Lat Car: ", cat
     print features
 
-timeData = timetravel("Mar 14, 2017","9:00AM", "01841")
+timeData = timetravel("Feb 1, 2011","9:00AM", "02494")
 
 timePredict(timeData)

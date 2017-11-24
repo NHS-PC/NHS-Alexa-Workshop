@@ -164,4 +164,4 @@ def predict(zip):
 
     return "There is a {} percent chance of a snow day in {}, {}. Would you like to ask again?".format(finalPrediction, city,state) + message
 
-print predict("96703")
+print predict("53001")
