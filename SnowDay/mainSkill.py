@@ -13,7 +13,7 @@ ask = Ask(app, "/")
 
 @ask.launch
 def greeting():
-    msg = "Welcome to the Snow Day Calculator, powered by the Dark Sky API. What is your zip code?"
+    msg = "Welcome to the Snow Day Calculator. What is your zip code?"
     return question(msg)
 
 @ask.intent("PredictIntent", convert={'prediction': str})
@@ -144,7 +144,7 @@ def predict(prediction):
 
 #   prediction1 = clf.predict(array)
     ans = clf.predict_proba(array)
-    finalPrediction = round(ans.item((0, 1)) * 100,0)
+    finalPrediction = round(ans.item((0, 1)) * 100,1)
     print features
 
 #    # Override the print function IF something occurs
@@ -171,9 +171,7 @@ def predict(prediction):
         return question("Sorry, I couldn't find any weather data for this zip code. Would you like to try again?")
 @ask.intent("HelpIntent")
 def help():
-    msg = "This snow day prediction application uses the Dark Sky API to get weather data based on a location. The weather data collected is then compared to weather" \
-          "in the past, and then classified as either being conditions for a snow day or not. The percent chance is calculated using a Support Vector Machine, with the" \
-          "Sci-kit Learn library in Python. To make a prediction, simply say your zip code when prompted, and a percentage will be returned. Would you like to try?"
+    msg = "To make a prediction, simply say your zip code when prompted, and the likelihood of a snow day will be returned. Would you like to try?"
     return question(msg)
 
 @ask.intent("YesIntent")
