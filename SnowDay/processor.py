@@ -10,15 +10,16 @@ from data.weatherData import X_Data, Y_Data
 # Prompt the user to enter their ZIP
 
 def predict(zip):
-    zipurl = "http://api.zipasaur.us/zip/" + str(zip)
-    zippage = urllib.urlopen(zipurl)
-    cityresult = json.loads(zippage.read())
-    if cityresult is None:
-        return ("Sorry, the zip code {} is not valid. Would you like to try again?".format(zip))
-    city = cityresult['city']
-    state = cityresult['state_full']
-    lat = cityresult['lat']
-    long = cityresult['lng']
+    site = "https://maps.googleapis.com/maps/api/geocode/json?address="+str(zip)
+    data = urllib.urlopen(site)
+    moredata = json.loads(data.read())
+
+    lat = moredata['results'][0]['geometry']['location']['lat']
+    long = moredata['results'][0]['geometry']['location']['lng']
+    print lat
+    print long
+    name = moredata['results'][0]['formatted_address']
+    name = name[:-11]
 
     # Train the classifier
 
@@ -50,20 +51,13 @@ def predict(zip):
 
     # Get the Latitude and Longitude based off of the zipcode, to be used for user input
 
-    url = "https://api.darksky.net/forecast/" + API_KEY + "/" + lat + "," + str(long)
+    url = "https://api.darksky.net/forecast/" + API_KEY + "/" + str(lat) + "," + str(long)
+    print url
 
     # API Request
     page = urllib.urlopen(url)
 
     result = json.loads(page.read())
-
-    # Get city name
-
-    cityurl = "http://api.zipasaur.us/zip/" + str(coordinates)
-    citypage = urllib.urlopen(cityurl)
-    cityresult = json.loads(citypage.read())
-    city = cityresult['city']
-    state = cityresult['state_full']
 
     # Functions to get features from the API call
 
@@ -149,19 +143,19 @@ def predict(zip):
 
     if finalPrediction < 25:
         if type != 1:
-            return "There is a small chance of a snow day in {}, {}, because it isn't supposed to snow today. The forecast calls for {}. Would you like to ask again?".format(
-                    city, state, summary)
+            return "There is a small chance of a snow day in {}, because it isn't supposed to snow today. The forecast calls for {}. Would you like to ask again?".format(
+                    name, summary)
 
         if temp == 0:
-            return "There is a small chance of a snow day in {}, {}, because it isn't cold enough. Right now, it is about {} degrees outside, with a low of {} degrees for the day. Would you like to ask again?".format(
-                    city, state, tempc, temperature)
+            return "There is a small chance of a snow day in {}, because it isn't cold enough. Right now, it is about {} degrees outside, with a low of {} degrees for the day. Would you like to ask again?".format(
+                    name, tempc, temperature)
 
         if accumulation <= 1 and cat <= 1:
-            return "There is a small chance of a snow day in {}, {}, because the forecast calls for {}, and less than an inch of snowfall at most. Would you like to ask again?".format(
-                    city, state, summary)
+            return "There is a small chance of a snow day in {}, because the forecast calls for {}, and less than an inch of snowfall at most. Would you like to ask again?".format(
+                    name, summary)
 
     message = summary.encode('utf-8')
 
-    return "There is a {} percent chance of a snow day in {}, {}. Would you like to ask again?".format(finalPrediction, city,state) + message
+    return "There is a {} percent chance of a snow day in {}. Would you like to ask again?".format(finalPrediction, name) + message
 
 print predict("53001")

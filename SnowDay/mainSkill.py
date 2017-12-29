@@ -20,17 +20,23 @@ def greeting():
 
 # Prompt the user to enter their ZIP
 def predict(prediction):
+    site = "https://maps.googleapis.com/maps/api/geocode/json?address=" + str(prediction)
+    data = urllib.urlopen(site)
+    moredata = json.loads(data.read())
 
-    zipurl = "http://api.zipasaur.us/zip/" + str(prediction)
-    zippage = urllib.urlopen(zipurl)
-    cityresult = json.loads(zippage.read())
-    if cityresult is None:
-        return question("Sorry, the zip code {} is not valid. Would you like to try again?".format(prediction))
+    print site
+    print moredata['status']
 
-    city = cityresult['city']
-    state = cityresult['state_full']
-    lat = cityresult['lat']
-    long = cityresult['lng']
+    if moredata is None:
+        return question("Sorry, that zip code is not valid. Would you like to try again?")
+
+    if moredata['status'] == "ZERO_RESULTS":
+        return question("Sorry, that zip code is not valid. Would you like to try again?")
+
+    lat = moredata['results'][0]['geometry']['location']['lat']
+    long = moredata['results'][0]['geometry']['location']['lng']
+    name = moredata['results'][0]['formatted_address']
+    name = name[:-11]
 
     # Train the classifier
 
@@ -62,20 +68,12 @@ def predict(prediction):
 
     #Get the Latitude and Longitude based off of the zipcode, to be used for user input
 
-    url = "https://api.darksky.net/forecast/"+API_KEY+"/"+lat+","+str(long)
+    url = "https://api.darksky.net/forecast/"+API_KEY+"/"+str(lat)+","+str(long)
 
     # API Request
     page = urllib.urlopen(url)
 
     result = json.loads(page.read())
-
-    # Get city name
-
-    cityurl = "http://api.zipasaur.us/zip/"+str(coordinates)
-    citypage = urllib.urlopen(cityurl)
-    cityresult = json.loads(citypage.read())
-    city = cityresult['city']
-    state = cityresult['state_full']
 
 # Functions to get features from the API call
 
@@ -131,6 +129,11 @@ def predict(prediction):
 
     storm_distance = result['currently']['nearestStormDistance']
 
+    if "Snow" in summaryd:
+        type = 1
+    elif "snow" in summaryd:
+        type = 1
+
     # Make a prediction based on the given data. Weigh each feature by a certain amount.
 
     # DATA: TYPE, ACCUMULATION, CHANCE, TEMP, SPEED, CATEGORY, STORM_DISTANCE (organized in order of importance)
@@ -151,22 +154,22 @@ def predict(prediction):
     try:
         if temperature >= 40:
             return question(
-                "There is a small chance of a snow day tomorrow in {}, {}, because it won't be cold enough. Tomorrow, the temperature will hit a low of {} degrees for the day, which is too warm for it to snow. Would you like to ask again?".format(city, state, temperature))
+                "There is a small chance of a snow day tomorrow in {}, {}, because it won't be cold enough. Tomorrow, the temperature will hit a low of {} degrees for the day, which is too warm for it to snow. Would you like to ask again?".format(name, temperature))
 
         if finalPrediction < 25:
             if type !=1:
-                return question("There is a small chance of a snow day tomorrow in {}, {}, because it isn't supposed to snow. The forecast calls for {}. Would you like to ask again?".format(city,state,summaryd))
+                return question("There is a small chance of a snow day tomorrow in {}, {}, because it isn't supposed to snow. The forecast calls for {}. Would you like to ask again?".format(name,summaryd))
 
             if temp == 0:
-                return question("There is a small chance of a snow day tomorrow in {}, {}, because it won't be cold enough. Tomorrow, the temperature will hit a low of {} degrees for the day, which is too warm for it to snow. Would you like to ask again?".format(city,state,temperature))
+                return question("There is a small chance of a snow day tomorrow in {}, {}, because it won't be cold enough. Tomorrow, the temperature will hit a low of {} degrees for the day, which is too warm for it to snow. Would you like to ask again?".format(name,temperature))
 
             if accumulation <= 1 and cat<=1:
-                return question("There is a small chance of a snow day tomorrow in {}, {}, because the forecast calls for {}, and less than an inch of snowfall over the next 24 hours. Would you like to ask again?".format(city,state,summaryd))
+                return question("There is a small chance of a snow day tomorrow in {}, because the forecast calls for {}, and less than an inch of snowfall over the next 24 hours. Would you like to ask again?".format(name,summaryd))
 
         if finalPrediction > 75:
-            return question("There is a {} percent chance of a snow day tomorrow in {}, {}. The forecast calls for {}, meaning there is a very good chance of a snow day. Would you like to ask again?".format(finalPrediction, city, state, summaryd))
+            return question("There is a {} percent chance of a snow day tomorrow in {}. The forecast calls for {}, meaning there is a very good chance of a snow day. Would you like to ask again?".format(finalPrediction, name, summaryd))
 
-        return question("There is a {} percent chance of a snow day tomorrow in {}, {}. The forecast calls for {}. Would you like to ask again?".format(finalPrediction,city,state,summaryd))
+        return question("There is a {} percent chance of a snow day tomorrow in {}, {}. The forecast calls for {}. Would you like to ask again?".format(finalPrediction,name,summaryd))
     except:
         return question("Sorry, I couldn't find any weather data for this zip code. Would you like to try again?")
 @ask.intent("HelpIntent")
