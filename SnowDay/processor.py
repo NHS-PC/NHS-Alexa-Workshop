@@ -100,11 +100,6 @@ def predict(zip):
     print features
     print finalPrediction
     #    # Override the print function IF something occurs
-
-    if  finalPrediction < 25:
-        if type != 1:
-            return "There's less than a 25% chance of snow in {}. The weather calls for {}.".format(name,summary)
-
     return "There is a {} percent chance of a snow day in {}.".format(finalPrediction, name)
 
 print predict("02494")
