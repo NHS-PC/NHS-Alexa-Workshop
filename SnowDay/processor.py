@@ -2,7 +2,6 @@ import json
 import numpy as np
 import urllib
 
-import pandas as pd
 from sklearn import svm
 
 from config import API_KEY
@@ -16,54 +15,29 @@ def predict(zip):
 
     lat = moredata['results'][0]['geometry']['location']['lat']
     long = moredata['results'][0]['geometry']['location']['lng']
-    print lat
-    print long
     name = moredata['results'][0]['formatted_address']
     name = name[:-11]
 
     # Train the classifier
 
-    lines = 0
+    X = np.array(X_Data)
+    y = np.array(Y_Data).reshape(len(X), )
 
-    for i in X_Data:
-        lines = lines + 1
-
-    X = np.zeros((lines, 5))
-
-    line = 0
-    for row in X:
-        X[line, 0] = X_Data[line][0]
-        X[line, 1] = X_Data[line][1]
-        X[line, 2] = X_Data[line][2]
-        X[line, 3] = X_Data[line][3]
-        X[line, 4] = X_Data[line][4]
-        line = line + 1
-
-    # fitting the data to the tree
-
-    y = np.array(Y_Data).reshape(line, )
-
+    # fitting the data to the SVM
     clf = svm.SVC(probability=True, kernel='linear', tol=0.001, C=0.95, class_weight='balanced')
 
     clf.fit(X, y)
 
-    coordinates = zip
-
     # Get the Latitude and Longitude based off of the zipcode, to be used for user input
 
     url = "https://api.darksky.net/forecast/" + API_KEY + "/" + str(lat) + "," + str(long)
-    print url
 
     # API Request
     page = urllib.urlopen(url)
-
     result = json.loads(page.read())
-
-    # Functions to get features from the API call
 
     # Get section of America, southern states are more prone to snow days!
     latCar = round(float(lat))
-    cat = 0
 
     if latCar < 35:
         cat = 2
@@ -71,9 +45,6 @@ def predict(zip):
         cat = 1
     else:
         cat = 0
-
-    # Get the current time
-    time = result['currently']['time']
 
     # Get the chance of precipitation NEED TO CHANGE THIS
     total = 0
@@ -87,14 +58,10 @@ def predict(zip):
     # Average Temp over 12 hours, return 1 if temp average temp is under 32 degrees
     temperature = result['daily']['data'][0]['temperatureMin']
     tempc = result['hourly']['data'][0]['temperature']
-    temp = 0
-    if (temperature > 32):
+    if (temperature > 40):
         temp = 0
-    elif temperature <= 32:
+    elif temperature <= 40:
         temp = 1
-
-    # Get current wind speed, return 0 if not blizzard and 1 if blizzard
-    speed = (result['currently']['windSpeed'] + result['currently']['windGust']) / 2
 
     # Get the type of precipitation (if snow, return 1. if not, return 0.25. This is the attenuation factor.)
     type = 0
@@ -116,46 +83,28 @@ def predict(zip):
         pass
 
     # Get a weather summary from Dark Sky
-    summary = (result['currently']['summary'])
-
-    storm_distance = result['currently']['nearestStormDistance']
+    summary = result['currently']['summary']
 
     # Make a prediction based on the given data. Weigh each feature by a certain amount.
 
-    # DATA: TYPE, ACCUMULATION, CHANCE, TEMP, SPEED, CATEGORY, STORM_DISTANCE (organized in order of importance)
+    # DATA: TYPE, ACCUMULATION, CHANCE, TEMP, CATEGORY (organized in order of importance)
 
     features = [type, accumulation, prob, temp, cat]
 
-    # Prediction index
-    arr = np.asarray(features).ravel()
-
-    array = [arr]
+    array = [np.asarray(features).ravel()]
 
     #   prediction1 = clf.predict(array)
     ans = clf.predict_proba(array)
     finalPrediction = (ans.item((0, 1)) * 100)
 
-    print coordinates
-    print finalPrediction
     print features
-
+    print finalPrediction
     #    # Override the print function IF something occurs
 
-    if finalPrediction < 25:
+    if  finalPrediction < 25:
         if type != 1:
-            return "There is a small chance of a snow day in {}, because it isn't supposed to snow today. The forecast calls for {}. Would you like to ask again?".format(
-                    name, summary)
+            return "There's less than a 25% chance of snow in {}. The weather calls for {}.".format(name,summary)
 
-        if temp == 0:
-            return "There is a small chance of a snow day in {}, because it isn't cold enough. Right now, it is about {} degrees outside, with a low of {} degrees for the day. Would you like to ask again?".format(
-                    name, tempc, temperature)
+    return "There is a {} percent chance of a snow day in {}.".format(finalPrediction, name)
 
-        if accumulation <= 1 and cat <= 1:
-            return "There is a small chance of a snow day in {}, because the forecast calls for {}, and less than an inch of snowfall at most. Would you like to ask again?".format(
-                    name, summary)
-
-    message = summary.encode('utf-8')
-
-    return "There is a {} percent chance of a snow day in {}. Would you like to ask again?".format(finalPrediction, name) + message
-
-print predict("53001")
+print predict("02494")

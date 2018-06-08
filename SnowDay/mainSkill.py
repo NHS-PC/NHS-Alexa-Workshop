@@ -127,8 +127,6 @@ def predict(prediction):
     # Daily summary
     summaryd = (result['daily']['data'][1]['summary'])
 
-    storm_distance = result['currently']['nearestStormDistance']
-
     if "Snow" in summaryd:
         type = 1
     elif "snow" in summaryd:
@@ -154,14 +152,14 @@ def predict(prediction):
     try:
         if temperature >= 40:
             return question(
-                "There is a small chance of a snow day tomorrow in {}, {}, because it won't be cold enough. Tomorrow, the temperature will hit a low of {} degrees for the day, which is too warm for it to snow. Would you like to ask again?".format(name, temperature))
+                "There is a small chance of a snow day tomorrow in {}, because it won't be cold enough. Tomorrow, the temperature will hit a low of {} degrees for the day, which is too warm for it to snow. Would you like to ask again?".format(name, temperature))
 
         if finalPrediction < 25:
             if type !=1:
-                return question("There is a small chance of a snow day tomorrow in {}, {}, because it isn't supposed to snow. The forecast calls for {}. Would you like to ask again?".format(name,summaryd))
+                return question("There is a small chance of a snow day tomorrow in {}, because it isn't supposed to snow. The forecast calls for {}. Would you like to ask again?".format(name,summaryd))
 
             if temp == 0:
-                return question("There is a small chance of a snow day tomorrow in {}, {}, because it won't be cold enough. Tomorrow, the temperature will hit a low of {} degrees for the day, which is too warm for it to snow. Would you like to ask again?".format(name,temperature))
+                return question("There is a small chance of a snow day tomorrow in {}, because it won't be cold enough. Tomorrow, the temperature will hit a low of {} degrees for the day, which is too warm for it to snow. Would you like to ask again?".format(name,temperature))
 
             if accumulation <= 1 and cat<=1:
                 return question("There is a small chance of a snow day tomorrow in {}, because the forecast calls for {}, and less than an inch of snowfall over the next 24 hours. Would you like to ask again?".format(name,summaryd))
@@ -169,7 +167,7 @@ def predict(prediction):
         if finalPrediction > 75:
             return question("There is a {} percent chance of a snow day tomorrow in {}. The forecast calls for {}, meaning there is a very good chance of a snow day. Would you like to ask again?".format(finalPrediction, name, summaryd))
 
-        return question("There is a {} percent chance of a snow day tomorrow in {}, {}. The forecast calls for {}. Would you like to ask again?".format(finalPrediction,name,summaryd))
+        return question("There is a {} percent chance of a snow day tomorrow in {}. The forecast calls for {}. Would you like to ask again?".format(finalPrediction,name,summaryd))
     except:
         return question("Sorry, I couldn't find any weather data for this zip code. Would you like to try again?")
 @ask.intent("HelpIntent")
